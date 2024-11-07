@@ -6,13 +6,13 @@ import { useSessionStore } from '@/stores/session'
 import { ErrorMessage, Field, Form } from 'vee-validate'
 import { LoginSchema } from '@/api/data/schemas/auth_schema'
 import { useRoute, useRouter } from 'vue-router'
-import { axiosInstance } from '@/api/axios_instance'
 import { apiError } from '@/api/error_handler'
 import AlertError from '@/components/alerts/AlertError.vue'
 import type { ErrorResponse } from '@/api/data/response/response'
 import AlertWarning from '@/components/alerts/AlertWarning.vue'
 import { useFlashMessageStore } from '@/stores/flash_message'
 import AlertSuccess from '@/components/alerts/AlertSuccess.vue'
+import { login } from '@/api/methods/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -24,7 +24,7 @@ const errorResponse = ref<ErrorResponse | null>(null)
 const onSubmit = async (values: any) => {
   isSubmitting.value = true
   try {
-    const { data } = await axiosInstance.post('/auth/login', values)
+    const { data } = await login(values)
     session.set(data.data)
 
     const to = route.query.to || '/dashboard'
