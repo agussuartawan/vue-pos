@@ -5,8 +5,6 @@ import ThemeSelector from '@/components/ThemeToggle.vue'
 import { usePopupStore } from '@/stores/popup'
 import PopUp from '@/components/PopUp.vue'
 import IconHome from '@/components/icons/IconHome.vue'
-import IconUsers from '@/components/icons/IconUsers.vue'
-import IconUserSetting from '@/components/icons/IconUserSetting.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { markRaw } from 'vue'
 import IconDatabase from '@/components/icons/IconDatabase.vue'
@@ -21,6 +19,7 @@ import { logout } from '@/api/methods/auth'
 import { apiError } from '@/api/error_handler'
 import { useFlashMessageStore } from '@/stores/flash_message'
 import { useSessionStore } from '@/stores/session'
+import IconUserSetting from '@/components/icons/IconUserSetting.vue'
 
 export default {
   components: {
@@ -48,28 +47,18 @@ export default {
           ]
         },
         {
-          title: 'User Management',
-          links: [
-            {
-              name: 'Permissions',
-              url: '/permissions',
-              icon: markRaw(IconUserSetting)
-            },
-            {
-              name: 'Roles',
-              url: '/roles',
-              icon: markRaw(IconUserSetting)
-            },
-            {
-              name: 'Users',
-              url: '/users',
-              icon: markRaw(IconUsers)
-            }
-          ]
-        },
-        {
           title: 'Data',
           links: [
+            {
+              name: 'User Management',
+              url: 'user-management',
+              icon: markRaw(IconUserSetting),
+              child: [
+                { name: 'Permission', url: '/user-management/permissions' },
+                { name: 'Role', url: '/user-management/roles' },
+                { name: 'User', url: '/user-management/users' }
+              ]
+            },
             {
               name: 'Master',
               url: 'master',
@@ -230,10 +219,12 @@ export default {
                   class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
                 >
                   <li v-for="(c, i) in link.child" :key="i">
-                    <div class="flex items-center justify-between">
-                      <RouterLink :to="c.url">{{ c.name }}</RouterLink>
-                      <IconCheck v-if="isActive(c.url)" />
-                    </div>
+                    <RouterLink :to="c.url">
+                      <div class="flex items-center justify-between">
+                        {{ c.name }}
+                        <IconCheck v-if="isActive(c.url)" />
+                      </div>
+                    </RouterLink>
                   </li>
                 </ul>
               </div>

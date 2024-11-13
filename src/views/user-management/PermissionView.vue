@@ -10,11 +10,11 @@ import { onMounted, ref, watch } from 'vue'
 import { usePopupStore } from '@/stores/popup'
 import FormPermission from '@/components/forms/FormPermission.vue'
 import type { PermissionResponse } from '@/api/data/response/permission_response'
-import { getPermission } from '@/api/methods/permission'
 import type { BaseResponse, ErrorResponse } from '@/api/data/response/response'
 import ErrorView from '@/views/ErrorView.vue'
 import { apiError } from '@/api/error_handler'
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow'
+import { getPermissions } from '@/api/methods/permission'
 
 const route = useRoute()
 const popup = usePopupStore()
@@ -41,6 +41,12 @@ const headers = [
 
 const contextMenuItems = [
   {
+    label: 'Assign to Role',
+    action: (rowData: any) => {
+      console.log('Assign to Role', rowData)
+    }
+  },
+  {
     label: 'Edit',
     action: (rowData: any) => {
       console.log('Edit', rowData)
@@ -65,7 +71,7 @@ const showFormCreate = () => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const { data } = await getPermission()
+    const { data } = await getPermissions()
     response.value = data
   } catch (err) {
     error.value = apiError(err)

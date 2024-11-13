@@ -4,3 +4,8 @@ export interface PermissionResponse {
   description: string
   createdAt: Date
 }
+
+export interface Permission {
+  id: number
+  name: string
+}

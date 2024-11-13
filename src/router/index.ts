@@ -2,10 +2,11 @@ import LoginView from '@/views/LoginView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '@/views/DashboardView.vue'
 import NotFound from '@/views/NotFoundView.vue'
-import PermissionView from '@/views/PermissionView.vue'
+import PermissionView from '@/views/user-management/PermissionView.vue'
 import CompanyView from '@/views/master/CompanyView.vue'
 import WarehouseView from '@/views/master/WarehouseView.vue'
 import { useSessionStore } from '@/stores/session'
+import RoleView from '@/views/user-management/RoleView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,10 +31,16 @@ const router = createRouter({
       component: DashboardView
     },
     {
-      path: '/permissions',
+      path: '/user-management/permissions',
       name: 'permissions',
       component: PermissionView,
       meta: { title: 'Permissions' }
+    },
+    {
+      path: '/user-management/roles',
+      name: 'roles',
+      component: RoleView,
+      meta: { title: 'Roles' }
     },
     {
       path: '/master/companies',

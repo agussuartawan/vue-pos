@@ -1,20 +1,29 @@
 <script setup lang="ts">
-import PaginationLink from '@/components/PaginationLink.vue'
-import TableMain from '@/components/TableMain.vue'
-import MainLayout from '@/components/layouts/MainLayout.vue'
-import InputSearch from '@/components/inputs/InputSearch.vue'
-import ButtonFilter from '@/components/buttons/ButtonFilter.vue'
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow'
 import IconPlus from '@/components/icons/IconPlus.vue'
+import ButtonFilter from '@/components/buttons/ButtonFilter.vue'
+import MainLayout from '@/components/layouts/MainLayout.vue'
+import TabLayout from '@/components/layouts/tabs/TabLayout.vue'
+import PaginationLink from '@/components/PaginationLink.vue'
+import UserManagementTab from '@/components/layouts/tabs/UserManagementTab.vue'
+import ErrorView from '@/views/ErrorView.vue'
+import InputSearch from '@/components/inputs/InputSearch.vue'
+import TableMain from '@/components/TableMain.vue'
 import { useRoute } from 'vue-router'
 import { usePopupStore } from '@/stores/popup'
+import { onMounted, ref, watch } from 'vue'
+import type { BaseResponse, ErrorResponse } from '@/api/data/response/response'
+import type { PermissionResponse } from '@/api/data/response/permission_response'
 import FormPermission from '@/components/forms/FormPermission.vue'
-import { watch } from 'vue'
-import TabLayout from '@/components/layouts/tabs/TabLayout.vue'
-import { formatDistanceToNow } from 'date-fns/formatDistanceToNow'
-import MasterTab from '@/components/layouts/tabs/MasterTab.vue'
+import { apiError } from '@/api/error_handler'
+import { getRoles } from '@/api/methods/role'
 
 const route = useRoute()
 const popup = usePopupStore()
+const response = ref<BaseResponse<PermissionResponse[]> | null>(null)
+const loading = ref<boolean>(false)
+const error = ref<ErrorResponse | null>(null)
+
 const headers = [
   {
     label: 'No'
@@ -30,15 +39,6 @@ const headers = [
     label: 'Created At',
     name: 'createdAt'
   }
-]
-
-const tableData = [
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() },
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() },
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() },
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() },
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() },
-  { name: 'Alice', description: 'Alice desc', createdAt: new Date() }
 ]
 
 const contextMenuItems = [
@@ -57,34 +57,50 @@ const contextMenuItems = [
 ]
 
 const showFormEdit = (row: any) => {
-  popup.openPopup(FormPermission, { title: 'Edit Company', data: row })
+  popup.openPopup(FormPermission, 'Edit Role', { data: row })
 }
 
 const showFormCreate = () => {
-  popup.openPopup(FormPermission, { title: 'Create Company' })
+  popup.openPopup(FormPermission, 'Create Role')
+}
+
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const { data } = await getRoles()
+    response.value = data
+  } catch (err) {
+    error.value = apiError(err)
+  } finally {
+    loading.value = false
+  }
 }
 
 watch(
   () => route.query,
   () => {
-    tableData.push({
-      name: 'Kowo',
-      description: 'Kowo desc',
-      createdAt: new Date()
-    })
+    fetchData()
   },
   { immediate: true }
 )
+
+onMounted(fetchData)
 </script>
 
 <template>
   <MainLayout>
-    <TabLayout title="Companies" description="Total 100 data">
+    <ErrorView v-if="error" :error="error?.message" @action="fetchData" />
+
+    <TabLayout
+      v-else
+      title="Role"
+      :description="`Total ${response?.pagination?.totalData ?? 0} data`"
+    >
       <template v-slot:tabs>
-        <MasterTab />
+        <UserManagementTab />
       </template>
       <template v-slot:body>
-        <div class="mt-3">
+        <div class="mt-5">
           <div class="mb-3 flex justify-between">
             <div class="flex items-center gap-2">
               <ButtonFilter :filtered="false" />
@@ -104,7 +120,7 @@ watch(
           <div class="bg-base-100 p-2 w-full rounded-2xl">
             <TableMain
               :headers="headers"
-              :data="tableData"
+              :data="response?.data"
               :contextMenuItems="contextMenuItems"
             >
               <template #default="{ row, index }">

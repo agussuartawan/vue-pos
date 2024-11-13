@@ -1,3 +1,6 @@
+import type { Permission } from '@/api/data/response/permission_response'
+import type { Role } from '@/api/data/response/role_response'
+
 export interface LoginResponse {
   name: string
   avatar?: string
@@ -14,14 +17,4 @@ export interface ProfileResponse {
   updatedAt: Date
   roles?: Role[]
   permissions?: Permission[]
-}
-
-export interface Role {
-  id: number
-  name: string
-}
-
-export interface Permission {
-  id: number
-  name: string
 }
